@@ -29,29 +29,6 @@ struct Order {
     long long timestamp;
 };
 
-/* 
-    The OrderBook must perform three distinct functions with maximum efficiency:
-        * The ID Lookup - given an id find an order instantly.
-            * Options: Hash Table
-        * The Ordering  - the book must maintain all Bids (Buys) sorted from
-                          highest price to lowest, and all Asks (Sells) sorted
-                          from lowest price to highest. Efficiently insert new
-                          prices and instantly find the best price.
-            * Options: The Tree Family (BSTs, AVL Trees, or Red-Black Trees),
-                       The Heap Family (Min-Heaps or Max-Heaps like Priority
-                       Queues in C++)
-            * Chose:   RBT. O(log n) operations with fewer rotations than AVL, 
-                       ideal for constant insertions/cancellations. Maintains 
-                       sorted order automatically, O(1) best price access, and 
-                       supports market depth traversal.
-        * Time Priority - at any single price orders must be executed in the 
-                          order they arrived (FIFO).
-            * Options: Queue implementation (Doubly Linked List, Double-Ended
-                       Queue, Vector)
-            * Chose:   User should be able to cancel their orders before they
-                       get matched. To make sure it's instantaneous (O(1))
-                       doubly-linked list makes the most sense.
-*/
 class OrderBook {
     private:
         std::unordered_map<int, std::list<Order>::iterator> orderMap;
@@ -101,6 +78,31 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
 }
 
 bool OrderBook::cancel_order(int id) {
+  auto it = orderMap.find(id);
+
+  if (it == orderMap.end()) {
+    std::cerr << "Error: Order under that ID doesn't exist" << std::endl;
+    return false;
+  }
+
+  auto list_it = it->second;
+  double price = list_it->price;
+
+  if (list_it->type == OrderType::BID) {
+    bids.at(price).erase(list_it);
+    if (bids.at(price).empty()) {
+      bids.erase(price);
+    }
+  }
+  else {
+    asks.at(price).erase(list_it);
+
+    if (asks.at(price).empty()) {
+      asks.erase(price);
+    }
+  }
+
+  orderMap.erase(id);
   return true;
 }
 
