@@ -5,4 +5,9 @@ project(order-book)
 set(CMAKE_CXX_STANDARD 17) 
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_executable(LOB_Engine src/main.cpp)
+add_executable(LOB_Engine 
+    src/main.cpp 
+    src/OrderBook.cpp
+)
+
+target_include_directories(LOB_Engine PRIVATE src)
