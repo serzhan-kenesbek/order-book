@@ -1,3 +1,9 @@
+# Goals for the project
+* Brush up C++ coding skills
+* Understand Optimization (on a Hardware level) critical for High Frequency Trading
+* Learn C++ (in this case C++17) on a deeper level
+* See if I enjoy this and decide if I want to take the related courses (currently in the Winter Semester) in the upcoming semesters for deeper understanding and to refine my knowledge
+
 # Why C++ for the Limit Order Book
 
 * C++ provides deterministic, ultra-low latency execution.
