@@ -1,3 +1,5 @@
+# In development!
+
 # Goals for the project
 * Brush up C++ coding skills
 * Understand Optimization (on a Hardware level) critical for High Frequency Trading
