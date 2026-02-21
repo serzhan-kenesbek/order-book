@@ -1,4 +1,9 @@
-# In development!
+# In development! Plan to:
+* Eliminate Dynamic Memory Allocation
+* Improve CPU Cache Locality
+* Remove Floating Point Arithmetic
+* Threading & Lock-Free Data Structures
+* Add Benchmarking
 
 # Goals for the project
 * Brush up C++ coding skills
