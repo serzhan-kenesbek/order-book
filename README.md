@@ -1,5 +1,4 @@
 # In development! Adding:
-* Volume tracking over price levels (Add a Limit struct)
 * Decoupled Execution Logic (currently it is in the add_order function)
 * Remove Floating Point Arithmetic
 * Add Benchmarking
@@ -36,8 +35,8 @@ The OrderBook must perform three distinct functions with maximum efficiency:
     * Chose: User should be able to cancel their orders before they get matched. To make sure it's instantaneous (O(1)) doubly-linked list makes the most sense.
 
 Features:
-* Add Order
-* Cancel Order
+* Add Order - O(log M) for new price levels (tree insertion), O(1) for existing
+* Cancel Order - O(1) using Hash Map iterator lookup
+* Get Best Bid / Ask - O(1) instantly cached
 * Print Book
-* Get Best Bid
-* Get Best Ask
+* Get Volume at Limit - O(1) instant lookup via Limit struct

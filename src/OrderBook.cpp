@@ -44,13 +44,15 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
         break;
       }
 
-      auto &orders = best_ask_it->second;
+      auto &limit = best_ask_it->second;
+      auto &orders = limit.orders;
       auto &best_match = orders.front();
 
       /* Trade */
       int trade_quantity = std::min(best_match.quantity, new_order.quantity);
       new_order.quantity -= trade_quantity;
       best_match.quantity -= trade_quantity;
+      limit.total_volume -= trade_quantity;
       std::cout << "Trade Executed: " << trade_quantity << " @ "
                 << best_ask_price << "\n";
 
@@ -73,12 +75,14 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
         break;
       }
 
-      auto &orders = best_bid_it->second;
+      auto &limit = best_bid_it->second;
+      auto &orders = limit.orders;
       auto &best_match = orders.front();
 
       int trade_quantity = std::min(best_match.quantity, new_order.quantity);
       new_order.quantity -= trade_quantity;
       best_match.quantity -= trade_quantity;
+      limit.total_volume -= trade_quantity;
       std::cout << "Trade Executed: " << trade_quantity << " @ "
                 << best_bid_price << "\n";
 
@@ -96,12 +100,14 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
   /* Add to Book if quantity left */
   if (new_order.quantity > 0) {
     if (type == OrderType::BID) {
-      bids[price].push_back(new_order);
-      auto it = --bids[price].end();
+      bids[price].orders.push_back(new_order);
+      bids[price].total_volume += new_order.quantity;
+      auto it = --bids[price].orders.end();
       orderMap[id] = it;
     } else {
-      asks[price].push_back(new_order);
-      auto it = --asks[price].end();
+      asks[price].orders.push_back(new_order);
+      asks[price].total_volume += new_order.quantity;
+      auto it = --asks[price].orders.end();
       orderMap[id] = it;
     }
   }
@@ -134,14 +140,16 @@ bool OrderBook::cancel_order(int id) {
   double price = list_it->price;
 
   if (list_it->type == OrderType::BID) {
-    bids.at(price).erase(list_it);
-    if (bids.at(price).empty()) {
+    bids.at(price).total_volume -= list_it->quantity;
+    bids.at(price).orders.erase(list_it);
+    if (bids.at(price).orders.empty()) {
       bids.erase(price);
     }
   } else {
-    asks.at(price).erase(list_it);
+    asks.at(price).total_volume -= list_it->quantity;
+    asks.at(price).orders.erase(list_it);
 
-    if (asks.at(price).empty()) {
+    if (asks.at(price).orders.empty()) {
       asks.erase(price);
     }
   }
@@ -170,16 +178,10 @@ void OrderBook::print_book() {
   std::cout << "ASKS:\n";
   for (auto it = asks.rbegin(); it != asks.rend(); ++it) {
     double price = it->first;
-    auto &list = it->second;
-
-    /* Volume at a price level */
-    int vol = 0;
-    for (const auto &o : list) {
-      vol += o.quantity;
-    }
+    auto &limit = it->second;
 
     std::cout << "  $" << std::fixed << std::setprecision(2) << price
-              << "\tVolume: " << vol << "\n";
+              << "\tVolume: " << limit.total_volume << "\n";
   }
 
   std::cout << "--------------------\n";
@@ -187,14 +189,9 @@ void OrderBook::print_book() {
   std::cout << "BIDS:\n";
   for (auto it = bids.begin(); it != bids.end(); ++it) {
     double price = it->first;
-    auto &list = it->second;
-
-    int vol = 0;
-    for (const auto &o : list) {
-      vol += o.quantity;
-    }
+    auto &limit = it->second;
 
     std::cout << "  $" << std::fixed << std::setprecision(2) << price
-              << "\tVolume: " << vol << "\n";
+              << "\tVolume: " << limit.total_volume << "\n";
   }
 }

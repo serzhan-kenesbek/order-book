@@ -8,11 +8,16 @@
 /* For optimization later */
 #include <memory>
 
+struct Limit {
+  int total_volume = 0;
+  std::list<Order> orders;
+};
+
 class OrderBook {
 private:
   std::unordered_map<int, std::list<Order>::iterator> orderMap;
-  std::map<double, std::list<Order>, std::greater<double>> bids;
-  std::map<double, std::list<Order>> asks;
+  std::map<double, Limit, std::greater<double>> bids;
+  std::map<double, Limit> asks;
 
   /* Explicit Best Bid/Ask tracking */
   double best_bid = 0.0;
