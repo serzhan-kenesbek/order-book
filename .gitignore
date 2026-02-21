@@ -20,6 +20,7 @@ cmake-build-release/
 .idea/
 .DS_Store
 *.swp
+.cache/
 
 # --- CMake Generated Files ---
 CMakeCache.txt

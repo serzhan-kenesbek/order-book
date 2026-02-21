@@ -1,9 +1,11 @@
-# In development! Plan to:
-* Eliminate Dynamic Memory Allocation
-* Improve CPU Cache Locality
+# In development! Adding:
+* Volume tracking over price levels (Add a Limit struct)
+* Decoupled Execution Logic (currently it is in the add_order function)
 * Remove Floating Point Arithmetic
-* Threading & Lock-Free Data Structures
 * Add Benchmarking
+* Eliminate Dynamic Memory Allocaiton
+* Improve CPU Cache Locality
+* Advanced HFT: Threading & Lock-Free Data Structures
 
 # Goals for the project
 * Brush up C++ coding skills
@@ -32,3 +34,10 @@ The OrderBook must perform three distinct functions with maximum efficiency:
 * Time Priority - at any single price orders must be executed in the order they arrived (FIFO).
     * Options: Queue implementation (Doubly Linked List, Double-Ended Queue, Vector)
     * Chose: User should be able to cancel their orders before they get matched. To make sure it's instantaneous (O(1)) doubly-linked list makes the most sense.
+
+Features:
+* Add Order
+* Cancel Order
+* Print Book
+* Get Best Bid
+* Get Best Ask
