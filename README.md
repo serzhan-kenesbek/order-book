@@ -1,4 +1,4 @@
-# In development! Adding:
+# Adding soon:
 * Decoupled Execution Logic (currently it is in the add_order function)
 * Remove Floating Point Arithmetic
 * Add Benchmarking
