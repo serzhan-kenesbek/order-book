@@ -24,6 +24,7 @@ cmake-build-release/
 
 # --- CMake Generated Files ---
 CMakeCache.txt
+compile_commands.json
 CMakeFiles/
 cmake_install.cmake
 Makefile
