@@ -1,17 +1,5 @@
 #include "OrderBook.h"
-#include <chrono>
-#include <iomanip>
 #include <iostream>
-
-long long getSteadyTimeNanoseconds() {
-  auto now = std::chrono::steady_clock::now();
-  auto duration_since_epoch = now.time_since_epoch();
-
-  auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(
-      duration_since_epoch);
-
-  return nanoseconds.count();
-}
 
 void OrderBook::execute_trade(Order &incoming_order, Limit &limit,
                               int64_t match_price) {
@@ -23,9 +11,6 @@ void OrderBook::execute_trade(Order &incoming_order, Limit &limit,
   best_match.quantity -= trade_quantity;
   limit.total_volume -= trade_quantity;
 
-  std::cout << "Trade Executed: " << trade_quantity << " @ " << match_price
-            << "\n";
-
   /* Cleanup if the current order is filled */
   if (best_match.quantity == 0) {
     orderMap.erase(best_match.id);
@@ -36,11 +21,9 @@ void OrderBook::execute_trade(Order &incoming_order, Limit &limit,
 bool OrderBook::add_order(int id, OrderType type, int64_t price, int quantity) {
   /* Error checks  and Initialization */
   if (orderMap.find(id) != orderMap.end()) {
-    std::cerr << "Error: Order ID " << id << " already exists\n";
     return false;
   }
   if (price <= 0 || quantity <= 0) {
-    std::cerr << "Error: Invalid input\n";
     return false;
   }
 
@@ -49,9 +32,6 @@ bool OrderBook::add_order(int id, OrderType type, int64_t price, int quantity) {
   new_order.type = type;
   new_order.price = price;
   new_order.quantity = quantity;
-  /* Avoid std::chrono due to the possibility of the time jumping backward due
-   * to OS updates */
-  new_order.timestamp = getSteadyTimeNanoseconds();
 
   /* Matching */
   if (type == OrderType::BID) { /* Buy */
@@ -124,7 +104,6 @@ bool OrderBook::cancel_order(int id) {
   auto it = orderMap.find(id);
 
   if (it == orderMap.end()) {
-    std::cerr << "Error: Order under that ID doesn't exist" << std::endl;
     return false;
   }
 

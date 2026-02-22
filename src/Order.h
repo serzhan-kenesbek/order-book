@@ -9,7 +9,11 @@ struct Order {
   int64_t price;
   int quantity;
 
-  /* long long for required high time precision for Time Priority wihtout
-   * risking integer overflow */
-  long long timestamp;
+  /*
+   * Timestamp is required for regulatory tracking/auditing.
+   * However, to avoid slow OS system calls on the Critical Path,
+   * the outer Network/Gateway layer populates this BEFORE
+   * calling the Matching Engine kernel.
+   */
+  int64_t timestamp;
 };
