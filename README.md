@@ -17,9 +17,9 @@ Features:
 * Print Book
 * Get Volume at Limit - O(1) instant lookup via Limit struct
 * Execute Trade - Decoupled execution logic handling order matching and volume updates
+* Integer Pricing - Replaced floating-point arithmetic with int64_t (64-bit fixed-width integer) to ensure deterministic, zero-loss calculations, and sub-nanosecond ALU performance.
 
 # Adding soon:
-* Remove Floating Point Arithmetic
 * Add Benchmarking
 * Eliminate Dynamic Memory Allocation
 * Improve CPU Cache Locality
@@ -31,7 +31,6 @@ Features:
 * See if I enjoy this and decide if I want to take the related courses (currently in the Winter Semester) in the upcoming semesters for deeper understanding and to refine my knowledge
 
 # Why C++ for the Limit Order Book
-
 * C++ provides deterministic, ultra-low latency execution.
 * It allows manual direct control over memory/hardware resources preventing unpredictable pauses common in languages with a garbage collector (GC) that can halt the entire system for milliseconds. This is detrimental in High-Frequency Trading (HFT).
 * Python, Java, and JS use a GC, Rust uses the Ownership and Borrow Checker System, and C++ relies on manual management and smart pointers.

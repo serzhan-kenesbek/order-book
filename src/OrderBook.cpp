@@ -14,7 +14,7 @@ long long getSteadyTimeNanoseconds() {
 }
 
 void OrderBook::execute_trade(Order &incoming_order, Limit &limit,
-                              double match_price) {
+                              int64_t match_price) {
   auto &orders = limit.orders;
   auto &best_match = orders.front();
 
@@ -33,7 +33,7 @@ void OrderBook::execute_trade(Order &incoming_order, Limit &limit,
   }
 }
 
-bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
+bool OrderBook::add_order(int id, OrderType type, int64_t price, int quantity) {
   /* Error checks  and Initialization */
   if (orderMap.find(id) != orderMap.end()) {
     std::cerr << "Error: Order ID " << id << " already exists\n";
@@ -57,7 +57,7 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
   if (type == OrderType::BID) { /* Buy */
     while (new_order.quantity > 0 && asks.empty() == false) {
       auto best_ask_it = asks.begin();
-      double best_ask_price = best_ask_it->first;
+      int64_t best_ask_price = best_ask_it->first;
 
       /* is Spread crossed or not */
       if (best_ask_price > new_order.price) {
@@ -74,7 +74,7 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
   } else { /* Sell */
     while (new_order.quantity > 0 && bids.empty() == false) {
       auto best_bid_it = bids.begin();
-      double best_bid_price = best_bid_it->first;
+      int64_t best_bid_price = best_bid_it->first;
 
       if (best_bid_price < new_order.price) {
         break;
@@ -106,13 +106,13 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
 
   /* Explicitly update the cached best bid and best ask values */
   if (bids.empty()) {
-    best_bid = 0.0;
+    best_bid = 0;
   } else {
     best_bid = bids.begin()->first;
   }
 
   if (asks.empty()) {
-    best_ask = 0.0;
+    best_ask = 0;
   } else {
     best_ask = asks.begin()->first;
   }
@@ -129,7 +129,7 @@ bool OrderBook::cancel_order(int id) {
   }
 
   auto list_it = it->second;
-  double price = list_it->price;
+  int64_t price = list_it->price;
 
   if (list_it->type == OrderType::BID) {
     bids.at(price).total_volume -= list_it->quantity;
@@ -151,13 +151,13 @@ bool OrderBook::cancel_order(int id) {
   /* Explicitly update the cached best bid and best ask values after a
    * cancellation */
   if (bids.empty()) {
-    best_bid = 0.0;
+    best_bid = 0;
   } else {
     best_bid = bids.begin()->first;
   }
 
   if (asks.empty()) {
-    best_ask = 0.0;
+    best_ask = 0;
   } else {
     best_ask = asks.begin()->first;
   }
@@ -169,21 +169,19 @@ void OrderBook::print_book() {
   std::cout << "\n--- Market Check ---\n";
   std::cout << "ASKS:\n";
   for (auto it = asks.rbegin(); it != asks.rend(); ++it) {
-    double price = it->first;
+    int64_t price = it->first;
     auto &limit = it->second;
 
-    std::cout << "  $" << std::fixed << std::setprecision(2) << price
-              << "\tVolume: " << limit.total_volume << "\n";
+    std::cout << "  $" << price << "\tVolume: " << limit.total_volume << "\n";
   }
 
   std::cout << "--------------------\n";
 
   std::cout << "BIDS:\n";
   for (auto it = bids.begin(); it != bids.end(); ++it) {
-    double price = it->first;
+    int64_t price = it->first;
     auto &limit = it->second;
 
-    std::cout << "  $" << std::fixed << std::setprecision(2) << price
-              << "\tVolume: " << limit.total_volume << "\n";
+    std::cout << "  $" << price << "\tVolume: " << limit.total_volume << "\n";
   }
 }
