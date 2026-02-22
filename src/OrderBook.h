@@ -15,6 +15,8 @@ struct Limit {
 
 class OrderBook {
 private:
+  void execute_trade(Order &incoming_order, Limit &limit, double match_price);
+
   std::unordered_map<int, std::list<Order>::iterator> orderMap;
   std::map<double, Limit, std::greater<double>> bids;
   std::map<double, Limit> asks;

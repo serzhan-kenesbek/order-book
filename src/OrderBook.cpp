@@ -13,6 +13,26 @@ long long getSteadyTimeNanoseconds() {
   return nanoseconds.count();
 }
 
+void OrderBook::execute_trade(Order &incoming_order, Limit &limit,
+                              double match_price) {
+  auto &orders = limit.orders;
+  auto &best_match = orders.front();
+
+  int trade_quantity = std::min(best_match.quantity, incoming_order.quantity);
+  incoming_order.quantity -= trade_quantity;
+  best_match.quantity -= trade_quantity;
+  limit.total_volume -= trade_quantity;
+
+  std::cout << "Trade Executed: " << trade_quantity << " @ " << match_price
+            << "\n";
+
+  /* Cleanup if the current order is filled */
+  if (best_match.quantity == 0) {
+    orderMap.erase(best_match.id);
+    orders.pop_front();
+  }
+}
+
 bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
   /* Error checks  and Initialization */
   if (orderMap.find(id) != orderMap.end()) {
@@ -45,25 +65,10 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
       }
 
       auto &limit = best_ask_it->second;
-      auto &orders = limit.orders;
-      auto &best_match = orders.front();
+      execute_trade(new_order, limit, best_ask_price);
 
-      /* Trade */
-      int trade_quantity = std::min(best_match.quantity, new_order.quantity);
-      new_order.quantity -= trade_quantity;
-      best_match.quantity -= trade_quantity;
-      limit.total_volume -= trade_quantity;
-      std::cout << "Trade Executed: " << trade_quantity << " @ "
-                << best_ask_price << "\n";
-
-      /* Cleanup if the current order is filled */
-      if (best_match.quantity == 0) {
-        orderMap.erase(best_match.id);
-        orders.pop_front();
-
-        if (orders.empty()) {
-          asks.erase(best_ask_it);
-        }
+      if (limit.orders.empty()) {
+        asks.erase(best_ask_it);
       }
     }
   } else { /* Sell */
@@ -76,23 +81,10 @@ bool OrderBook::add_order(int id, OrderType type, double price, int quantity) {
       }
 
       auto &limit = best_bid_it->second;
-      auto &orders = limit.orders;
-      auto &best_match = orders.front();
+      execute_trade(new_order, limit, best_bid_price);
 
-      int trade_quantity = std::min(best_match.quantity, new_order.quantity);
-      new_order.quantity -= trade_quantity;
-      best_match.quantity -= trade_quantity;
-      limit.total_volume -= trade_quantity;
-      std::cout << "Trade Executed: " << trade_quantity << " @ "
-                << best_bid_price << "\n";
-
-      if (best_match.quantity == 0) {
-        orderMap.erase(best_match.id);
-        orders.pop_front();
-
-        if (orders.empty()) {
-          bids.erase(best_bid_it);
-        }
+      if (limit.orders.empty()) {
+        bids.erase(best_bid_it);
       }
     }
   }
